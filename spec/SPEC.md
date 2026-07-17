@@ -168,3 +168,19 @@ enhancement on top.
 single event line. Note that per §6, a consumer is more tolerant than the
 schema: the schema describes what producers SHOULD write, not what consumers
 may reject.
+
+## 10. Non-goals
+
+shinchoku is not an observability stack, and does not try to become one:
+
+- **No traces, spans or aggregation.** The unit of interest is one run of one
+  process, narrated to the consumer that spawned it. Fleet-level questions
+  (latency percentiles, cross-service correlation) belong to systems like
+  OpenTelemetry. A consumer MAY bridge events into such a pipeline; the
+  protocol itself stays ignorant of it.
+- **No network transport.** The protocol is defined over stdout only (§2).
+  Relaying lines over SSH, WebSockets or anything else that carries text is a
+  consumer concern and needs no extra specification.
+- **No structured result data.** The result of the work travels outside the
+  protocol (§2): `artifact` points at it, `metric` summarizes it, neither
+  replaces it.

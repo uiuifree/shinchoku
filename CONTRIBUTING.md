@@ -34,6 +34,9 @@ convenience, not frameworks. Features that grow the vocabulary beyond what a
 domain-agnostic consumer can render (see SPEC §4.4: "the key is data, not
 vocabulary") are out of scope, as are transport layers, schedulers and UIs:
 those belong to consumers built *on* the protocol, not to the protocol.
+SPEC §10 (Non-goals) is the normative version of this rule — observability
+stacks à la OpenTelemetry are explicitly a consumer concern, not a protocol
+concern.
 
 ## Reporting issues
 

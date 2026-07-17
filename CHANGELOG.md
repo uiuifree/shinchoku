@@ -10,6 +10,9 @@ Until 1.0, every 0.x release may contain breaking changes (see README
 - v1 (draft): initial vocabulary — `start`, `progress`, `log`, `metric`,
   `artifact`, `done`, `failed`; envelope (`v`, `event`); producer/consumer
   rules; reserved names `ask`, `row`, `heartbeat`.
+- v1 (draft): added §10 Non-goals — scope statement vs. observability stacks
+  (OpenTelemetry et al.); no traces/aggregation, no network transport, no
+  result data.
 
 ### rust 0.1.0
 - Initial release. Builder-style emitters (`emit` feature, default) and a

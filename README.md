@@ -40,6 +40,31 @@ The full contract lives in **[spec/SPEC.md](spec/SPEC.md)** (status: v1 draft)
 with a JSON Schema in [spec/schema/](spec/schema/). The spec is the single
 source of truth; implementations follow it.
 
+## Why not OpenTelemetry?
+
+Different question. OpenTelemetry answers *"what is happening across my
+services?"* — traces, metrics and logs, pushed over the network to a collector
+for later analysis. shinchoku answers *"how far along is this one process?"* —
+narrated on stdout to whoever spawned it.
+
+- **Progress is first-class.** OTel has no `current/total`, no `artifact`, no
+  terminal `done`/`failed` — and no standard consumer that would draw a
+  progress bar from a span.
+- **The transport points the other way.** OTLP pushes to a network endpoint
+  you must configure. shinchoku writes to stdout and is read by the parent
+  process — no endpoint, no network, unchanged over a pipe or SSH.
+- **Nothing to install.** OTel needs an SDK, an exporter and usually a
+  collector. A shinchoku producer can be `printf`; a consumer is a tolerant
+  NDJSON parser.
+- **Crashes can't lose the verdict.** Push telemetry drops the tail when a
+  process dies. Here the parent holds the exit code, and the exit code is
+  authoritative (consumer rule 5 below).
+
+They compose rather than compete: a consumer may forward events into an OTel
+pipeline. In the parcel metaphor — shinchoku is the tracking barcode;
+OpenTelemetry is the logistics company's back office. See
+[SPEC §10](spec/SPEC.md#10-non-goals) for the normative scope statement.
+
 ## Quickstart
 
 ### Rust

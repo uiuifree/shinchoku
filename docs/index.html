@@ -161,6 +161,28 @@
 </section>
 
 <section>
+  <h2>Isn't this OpenTelemetry's job?</h2>
+  <p>Different question. OpenTelemetry answers <em>"what is happening across my
+  services?"</em> — traces, metrics and logs, pushed over the network to a
+  collector for later analysis. shinchoku answers <em>"how far along is this
+  one process?"</em> — narrated on stdout to whoever spawned it.</p>
+  <table>
+    <thead><tr><th></th><th>shinchoku</th><th>OpenTelemetry</th></tr></thead>
+    <tbody>
+      <tr><td>unit of interest</td><td>one run of one process</td><td>a fleet of services</td></tr>
+      <tr><td>progress (<span class="mono">current/total</span>)</td><td>first-class event</td><td>no such concept</td></tr>
+      <tr><td>transport</td><td>stdout → parent process</td><td>network → collector / backend</td></tr>
+      <tr><td>producer cost</td><td><span class="mono">printf</span> is enough</td><td>SDK + exporter (+ collector)</td></tr>
+      <tr><td>crash handling</td><td>exit code is authoritative</td><td>tail telemetry may be lost</td></tr>
+    </tbody>
+  </table>
+  <p>They compose rather than compete: a consumer may forward events into an
+  OTel pipeline. In the parcel metaphor — shinchoku is the tracking barcode;
+  OpenTelemetry is the logistics company's back office.
+  See <a href="https://github.com/uiuifree/shinchoku/blob/main/spec/SPEC.md#10-non-goals">SPEC §10, Non-goals</a>.</p>
+</section>
+
+<section>
   <h2>The vocabulary</h2>
   <table>
     <thead><tr><th>event</th><th>fields</th><th>meaning</th></tr></thead>

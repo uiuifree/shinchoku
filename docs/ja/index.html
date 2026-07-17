@@ -156,6 +156,27 @@
 </section>
 
 <section>
+  <h2>それ、OpenTelemetry の仕事では？</h2>
+  <p>答えている問いが違います。OpenTelemetry が答えるのは<em>「サービス群全体で何が起きているか」</em>——
+  トレース・メトリクス・ログをネットワーク経由でコレクタへ送り、あとで分析するための仕組みです。
+  shinchoku が答えるのは<em>「この1プロセスはどこまで進んだか」</em>——spawnした親に向かって、
+  stdoutで実況することです。</p>
+  <table>
+    <thead><tr><th></th><th>shinchoku</th><th>OpenTelemetry</th></tr></thead>
+    <tbody>
+      <tr><td>関心の単位</td><td>1プロセスの1回の実行</td><td>サービス群・分散システム</td></tr>
+      <tr><td>進捗（<span class="mono">current/total</span>）</td><td>一級のイベント</td><td>概念が存在しない</td></tr>
+      <tr><td>輸送路</td><td>stdout → 親プロセス</td><td>ネットワーク → コレクタ／バックエンド</td></tr>
+      <tr><td>導入コスト</td><td><span class="mono">printf</span> で足りる</td><td>SDK + exporter（+ コレクタ）</td></tr>
+      <tr><td>クラッシュ時</td><td>終了コードが最終判定</td><td>末尾のテレメトリは失われうる</td></tr>
+    </tbody>
+  </table>
+  <p>両者は競合ではなく合成できます——消費者が受け取ったイベントを OTel パイプラインへ転送すればいいだけです。
+  宅配便の例えで言えば、shinchoku は荷物の追跡バーコード、OpenTelemetry は物流会社の基幹システムです。
+  規範的な適用範囲は <a href="https://github.com/uiuifree/shinchoku/blob/main/spec/SPEC.md#10-non-goals">SPEC §10（Non-goals）</a>へ。</p>
+</section>
+
+<section>
   <h2>語彙</h2>
   <table>
     <thead><tr><th>event</th><th>フィールド</th><th>意味</th></tr></thead>
