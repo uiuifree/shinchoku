@@ -20,7 +20,7 @@ classifiers = [
 [project.urls]
 Homepage = "https://uiuifree.github.io/shinchoku/"
 Repository = "https://github.com/uiuifree/shinchoku"
-Specification = "https://github.com/uiuifree/shinchoku/blob/main/spec/SPEC.md"
+Specification = "https://github.com/uiuifree/shinchoku/blob/master/spec/SPEC.md"
 
 [tool.setuptools]
 packages = ["shinchoku"]
