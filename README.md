@@ -57,13 +57,35 @@ narrated on stdout to whoever spawned it.
   collector. A shinchoku producer can be `printf`; a consumer is a tolerant
   NDJSON parser.
 - **Crashes can't lose the verdict.** Push telemetry drops the tail when a
-  process dies. Here the parent holds the exit code, and the exit code is
-  authoritative (consumer rule 5 below).
+  process dies. Here the parent holds the exit code, and
+  ["the exit code decides"](#consumer-rules-the-short-version).
 
 They compose rather than compete: a consumer may forward events into an OTel
 pipeline. In the parcel metaphor — shinchoku is the tracking barcode;
 OpenTelemetry is the logistics company's back office. See
 [SPEC §10](spec/SPEC.md#10-non-goals) for the normative scope statement.
+
+## Nothing here is new — on purpose
+
+shinchoku combines four old, proven ideas and adds none of its own:
+
+- **From test harness protocols** — a process reports by writing plain lines
+  to stdout, and the reader parses them tolerantly. Decades of proof behind
+  the mechanism; but there the vocabulary is bound to pass/fail.
+- **From CI runners' status lines** — progress, artifacts and annotations
+  emitted as specially formatted lines that a runner turns into UI. The right
+  vocabulary; but each dialect belongs to one vendor's runner.
+- **From tools' `--json` modes** — machine-readable events streamed one JSON
+  line at a time. The right transport; but each tool invents a private
+  vocabulary, so no consumer works across tools.
+- **From process supervisors** — the child narrates its state, the parent
+  holds the verdict.
+  ["The exit code decides"](#consumer-rules-the-short-version) comes straight
+  from this tradition.
+
+The only contribution is the combination: the same old transport, one
+tolerant, domain-neutral vocabulary — so a single consumer can finally serve
+every tool.
 
 ## Quickstart
 

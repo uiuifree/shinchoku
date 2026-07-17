@@ -114,7 +114,7 @@
   <span class="brand">shinchoku<i>.</i></span>
   <span class="links">
     <a href="https://github.com/uiuifree/shinchoku">GitHub</a>
-    <a href="https://github.com/uiuifree/shinchoku/blob/main/spec/SPEC.md">仕様書</a>
+    <a href="https://github.com/uiuifree/shinchoku/blob/master/spec/SPEC.md">仕様書</a>
     <a href="../">English</a>
   </span>
 </nav>
@@ -126,7 +126,7 @@
   <b>業務の中身を一切知らないまま</b>、進捗バーを描き、失敗を通知し、履歴を残せるようになります。</p>
   <p class="tagline">「進捗どうですか？」に、CLIが自分で答えるためのプロトコル。</p>
   <div class="cta">
-    <a class="primary" href="https://github.com/uiuifree/shinchoku/blob/main/spec/SPEC.md">仕様書を読む</a>
+    <a class="primary" href="https://github.com/uiuifree/shinchoku/blob/master/spec/SPEC.md">仕様書を読む</a>
     <a href="https://github.com/uiuifree/shinchoku">GitHubで見る</a>
   </div>
 
@@ -173,7 +173,20 @@
   </table>
   <p>両者は競合ではなく合成できます——消費者が受け取ったイベントを OTel パイプラインへ転送すればいいだけです。
   宅配便の例えで言えば、shinchoku は荷物の追跡バーコード、OpenTelemetry は物流会社の基幹システムです。
-  規範的な適用範囲は <a href="https://github.com/uiuifree/shinchoku/blob/main/spec/SPEC.md#10-non-goals">SPEC §10（Non-goals）</a>へ。</p>
+  規範的な適用範囲は <a href="https://github.com/uiuifree/shinchoku/blob/master/spec/SPEC.md#10-non-goals">SPEC §10（Non-goals）</a>へ。</p>
+</section>
+
+<section>
+  <h2>新しいことは何もしていない——意図的に</h2>
+  <p>shinchoku は、実績のある4つの古い知恵を組み合わせただけで、独自の発明を足していません。
+  唯一の貢献はその<b>組み合わせ</b>です——昔ながらの輸送路の上に、寛容でドメイン非依存の語彙を1つだけ置く。
+  それで初めて、1つの観測者があらゆるツールに対応できるようになります。</p>
+  <div class="cards">
+    <div class="card"><h3>テストハーネスの知恵</h3><p>プロセスは stdout に行を書いて報告し、読む側は寛容にパースする。数十年の実績がある機構——ただしそこでの語彙は合否に縛られている。</p></div>
+    <div class="card"><h3>CIランナーの知恵</h3><p>進捗・成果物・注釈を特別な書式の行として流し、ランナーがUIに変える。正しい語彙——ただし方言が特定ベンダーのものになっている。</p></div>
+    <div class="card"><h3><span class="mono">--json</span> モードの知恵</h3><p>機械可読なイベントをJSON行で流す。正しい輸送路——ただし各ツールが私家版の語彙を発明するので、観測者がツールを横断できない。</p></div>
+    <div class="card"><h3>監督プロセスの知恵</h3><p>子は状態を実況し、親が判定を握る。<a href="#consumer-rules">「終了コードが最終判定」</a>はこの伝統の直系。</p></div>
+  </div>
 </section>
 
 <section>
@@ -248,7 +261,7 @@ shinchoku.<b>done</b>("4,520件")</pre>
   </div>
 </section>
 
-<section>
+<section id="consumer-rules">
   <h2>消費者ルール — 寛容さこそが契約</h2>
   <ol class="rules">
     <li>JSONとしてパースできない行 → <b>ただのログとして表示</b>。決してエラーにしない</li>

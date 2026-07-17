@@ -118,7 +118,7 @@
   <span class="brand">shinchoku<i>.</i></span>
   <span class="links">
     <a href="https://github.com/uiuifree/shinchoku">GitHub</a>
-    <a href="https://github.com/uiuifree/shinchoku/blob/main/spec/SPEC.md">Spec</a>
+    <a href="https://github.com/uiuifree/shinchoku/blob/master/spec/SPEC.md">Spec</a>
     <a href="./ja/">日本語</a>
   </span>
 </nav>
@@ -130,7 +130,7 @@
   so any observer can draw the bar, send the failure notification and keep the
   history, <b>without knowing anything about the work</b>.</p>
   <div class="cta">
-    <a class="primary" href="https://github.com/uiuifree/shinchoku/blob/main/spec/SPEC.md">Read the spec</a>
+    <a class="primary" href="https://github.com/uiuifree/shinchoku/blob/master/spec/SPEC.md">Read the spec</a>
     <a href="https://github.com/uiuifree/shinchoku">Source on GitHub</a>
   </div>
 
@@ -179,7 +179,21 @@
   <p>They compose rather than compete: a consumer may forward events into an
   OTel pipeline. In the parcel metaphor — shinchoku is the tracking barcode;
   OpenTelemetry is the logistics company's back office.
-  See <a href="https://github.com/uiuifree/shinchoku/blob/main/spec/SPEC.md#10-non-goals">SPEC §10, Non-goals</a>.</p>
+  See <a href="https://github.com/uiuifree/shinchoku/blob/master/spec/SPEC.md#10-non-goals">SPEC §10, Non-goals</a>.</p>
+</section>
+
+<section>
+  <h2>Nothing here is new — on purpose</h2>
+  <p>shinchoku combines four old, proven ideas and adds none of its own.
+  The only contribution is the combination: the same old transport, one
+  tolerant, domain-neutral vocabulary — so a single consumer can finally
+  serve every tool.</p>
+  <div class="cards">
+    <div class="card"><h3>From test harnesses</h3><p>A process reports by writing plain lines on stdout; the reader parses them tolerantly. Decades of proof — but there the vocabulary is bound to pass/fail.</p></div>
+    <div class="card"><h3>From CI runners</h3><p>Progress, artifacts and annotations as specially formatted lines a runner turns into UI. The right vocabulary — but each dialect belongs to one vendor.</p></div>
+    <div class="card"><h3>From <span class="mono">--json</span> modes</h3><p>Machine-readable events streamed one JSON line at a time. The right transport — but every tool invents a private vocabulary, so no consumer crosses tools.</p></div>
+    <div class="card"><h3>From process supervisors</h3><p>The child narrates its state; the parent holds the verdict. <a href="#consumer-rules">"The exit code decides"</a> comes straight from this tradition.</p></div>
+  </div>
 </section>
 
 <section>
@@ -256,7 +270,7 @@ shinchoku.<b>done</b>("4,520 items")</pre>
   </div>
 </section>
 
-<section>
+<section id="consumer-rules">
   <h2>Consumer rules — tolerance is the contract</h2>
   <ol class="rules">
     <li>A line that isn't valid JSON → <b>show it as a plain log.</b> Never an error.</li>

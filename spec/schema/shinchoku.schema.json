@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/uiuifree/shinchoku/blob/main/spec/schema/shinchoku.schema.json",
+  "$id": "https://github.com/uiuifree/shinchoku/blob/master/spec/schema/shinchoku.schema.json",
   "title": "shinchoku protocol event (one NDJSON line)",
   "description": "Validates what producers SHOULD write. Consumers are more tolerant than this schema (see SPEC.md §6).",
   "type": "object",

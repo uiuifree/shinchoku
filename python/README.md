@@ -3,7 +3,7 @@
 **shinchoku** (進捗, *"progress"*) — a tiny NDJSON protocol for batch CLIs to
 report their progress. This is the zero-dependency Python emitter; the
 contract itself lives in the
-[spec](https://github.com/uiuifree/shinchoku/blob/main/spec/SPEC.md).
+[spec](https://github.com/uiuifree/shinchoku/blob/master/spec/SPEC.md).
 
 ```python
 import shinchoku
