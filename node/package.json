@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "description": "shinchoku (進捗, \"progress\") — a tiny NDJSON protocol for batch CLIs to report their progress.",
   "license": "MIT",
+  "author": {
+    "name": "uiuifree",
+    "url": "https://uiuifree.com"
+  },
+  "homepage": "https://shinchoku.app",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/uiuifree/shinchoku.git",

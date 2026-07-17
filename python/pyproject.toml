@@ -9,6 +9,7 @@ description = "shinchoku (進捗, \"progress\") — a tiny NDJSON protocol for b
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.9"
+authors = [{ name = "uiuifree" }]
 keywords = ["progress", "ndjson", "cli", "protocol", "batch"]
 classifiers = [
     "License :: OSI Approved :: MIT License",
@@ -18,9 +19,10 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://uiuifree.github.io/shinchoku/"
+Homepage = "https://shinchoku.app/"
 Repository = "https://github.com/uiuifree/shinchoku"
 Specification = "https://github.com/uiuifree/shinchoku/blob/master/spec/SPEC.md"
+Author = "https://uiuifree.com"
 
 [tool.setuptools]
 packages = ["shinchoku"]

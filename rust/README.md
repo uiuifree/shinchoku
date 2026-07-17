@@ -37,4 +37,4 @@ evolves additively; each crate release documents which protocol version it
 speaks. Pin a minor version (`shinchoku = "0.1"`) if you need stability today.
 
 MIT license · [repository](https://github.com/uiuifree/shinchoku) ·
-[documentation site](https://uiuifree.github.io/shinchoku/)
+[documentation site](https://shinchoku.app/)

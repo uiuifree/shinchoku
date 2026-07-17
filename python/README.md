@@ -28,4 +28,4 @@ collector — can now draw the bar, send the failure notification and keep the
 history, without knowing anything about your domain.
 
 MIT license · [repository](https://github.com/uiuifree/shinchoku) ·
-[documentation](https://uiuifree.github.io/shinchoku/)
+[documentation](https://shinchoku.app/)

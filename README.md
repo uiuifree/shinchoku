@@ -7,7 +7,7 @@
 **shinchoku** (進捗, *"progress"*) — a tiny NDJSON protocol for batch CLIs to
 report their progress.
 
-日本語のガイドは [docs/ja/](https://uiuifree.github.io/shinchoku/ja/)（またはリポジトリ内 `docs/ja/index.html`）へ。
+日本語のガイドは [shinchoku.app/ja/](https://shinchoku.app/ja/)（またはリポジトリ内 `docs/ja/index.html`）へ。
 
 ```
 $ your-cli --out result.jsonl
@@ -223,4 +223,4 @@ Reserved for future protocol extensions (not implemented): `ask`
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) — made by [uiuifree](https://uiuifree.com).
