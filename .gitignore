@@ -1,0 +1,9 @@
+/.idea/
+/rust/target/
+/rust/Cargo.lock
+/node/node_modules/
+/php/vendor/
+/php/composer.lock
+/python/dist/
+/python/*.egg-info/
+__pycache__/

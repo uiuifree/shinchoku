@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shinchoku"
+version = "0.1.0"
+description = "shinchoku (進捗, \"progress\") — a tiny NDJSON protocol for batch CLIs to report their progress."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+keywords = ["progress", "ndjson", "cli", "protocol", "batch"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Environment :: Console",
+]
+
+[project.urls]
+Homepage = "https://uiuifree.github.io/shinchoku/"
+Repository = "https://github.com/uiuifree/shinchoku"
+Specification = "https://github.com/uiuifree/shinchoku/blob/main/spec/SPEC.md"
+
+[tool.setuptools]
+packages = ["shinchoku"]

@@ -1,0 +1,37 @@
+{
+  "name": "shinchoku",
+  "version": "0.1.0",
+  "description": "shinchoku (進捗, \"progress\") — a tiny NDJSON protocol for batch CLIs to report their progress.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uiuifree/shinchoku.git",
+    "directory": "node"
+  },
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  },
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "progress",
+    "ndjson",
+    "cli",
+    "protocol",
+    "batch"
+  ]
+}

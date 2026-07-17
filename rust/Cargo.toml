@@ -1,0 +1,23 @@
+[package]
+name = "shinchoku"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+license = "MIT"
+description = "shinchoku (進捗, \"progress\") — a tiny NDJSON protocol for batch CLIs to report their progress."
+repository = "https://github.com/uiuifree/shinchoku"
+documentation = "https://docs.rs/shinchoku"
+keywords = ["progress", "ndjson", "cli", "protocol", "batch"]
+categories = ["command-line-interface"]
+readme = "README.md"
+
+[features]
+default = ["emit"]
+# Producer side: emit events to stdout.
+emit = []
+# Consumer side: parse NDJSON lines back into events.
+parse = []
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

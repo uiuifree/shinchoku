@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>shinchoku — a tiny NDJSON progress protocol for batch CLIs</title>
+<meta name="description" content="shinchoku (進捗) lets any batch CLI report its progress on stdout, so any observer can display, notify and record the run without knowing the domain.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e1626'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23ffb930'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --paper:#fbfcfe; --paper2:#f2f5f9; --ink:#0f2033; --ink2:#42506b; --muted:#7d879c;
+    --blue:#2563eb; --blue-deep:#1d4ed8; --blue-weak:#e9f1fe;
+    --amber:#ffb930; --amber-deep:#b97d00; --amber-weak:#fff5df;
+    --line:#e4e9ef; --line2:#d3dae5;
+    --term-bg:#0e1626; --term-fg:#c6d1e2; --term-dim:#67748d;
+    --sky:#38bdf8; --good:#56d364; --warnc:#eec06a;
+    --mono:"Cascadia Mono","Consolas","SFMono-Regular",ui-monospace,monospace;
+    --sans:"Segoe UI","Noto Sans JP","Hiragino Sans",system-ui,sans-serif;
+    --sh:0 1px 2px rgba(15,32,51,.06),0 8px 24px rgba(15,32,51,.07);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#0d1421; --paper2:#111a2b; --ink:#e5ebf5; --ink2:#aab6cb; --muted:#6d7a92;
+      --blue:#5b8cf5; --blue-deep:#7ea5f8; --blue-weak:#152238;
+      --amber:#ffb930; --amber-deep:#ffc85e; --amber-weak:#2a2210;
+      --line:#22304a; --line2:#2e3d59; --term-bg:#0a111e;
+      --sh:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--sans);background:var(--paper);color:var(--ink);
+    font-size:15.5px;line-height:1.8;-webkit-font-smoothing:antialiased}
+  ::selection{background:var(--amber-weak)}
+  .wrap{max-width:780px;margin:0 auto;padding:0 24px}
+  a{color:var(--blue);text-decoration:none;border-bottom:1px solid transparent}
+  a:hover{border-bottom-color:var(--blue)}
+  p{margin:0 0 1.1em}
+  code{font-family:var(--mono);font-size:.88em;background:var(--paper2);
+    border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+
+  /* top nav */
+  nav.top{display:flex;align-items:center;gap:18px;padding:16px 0}
+  nav.top .brand{font-family:var(--mono);font-weight:700;font-size:16px;color:var(--ink)}
+  nav.top .brand i{font-style:normal;color:var(--amber)}
+  nav.top .links{margin-left:auto;display:flex;gap:18px;font-size:13.5px}
+
+  /* hero */
+  header.hero{padding:56px 0 48px;text-align:left}
+  h1{font-family:var(--mono);font-size:clamp(40px,8vw,64px);font-weight:700;letter-spacing:-.03em;line-height:1.15}
+  h1 .dot{color:var(--amber)}
+  .kana{font-size:14px;color:var(--muted);margin:4px 0 18px}
+  .lede{font-size:19px;line-height:1.7;color:var(--ink2);max-width:640px;margin-bottom:8px}
+  .lede b{color:var(--ink)}
+  .cta{display:flex;gap:12px;margin:24px 0 34px;flex-wrap:wrap}
+  .cta a{border:1px solid var(--line2);border-radius:8px;padding:8px 18px;font-weight:700;font-size:14px;color:var(--ink2)}
+  .cta a.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  .cta a.primary:hover{filter:brightness(1.08);border-bottom-color:var(--blue)}
+  .cta a:hover{border-color:var(--blue);color:var(--blue)}
+
+  .term{background:var(--term-bg);color:var(--term-fg);border-radius:14px;padding:20px 22px;
+    font-family:var(--mono);font-size:13px;line-height:2.05;overflow-x:auto;box-shadow:var(--sh)}
+  .term .ps{color:var(--term-dim)}
+  .term .ev{display:block;white-space:pre;opacity:0;animation:drop .5s ease forwards}
+  .term .ev:nth-child(2){animation-delay:.25s}
+  .term .ev:nth-child(3){animation-delay:.7s}
+  .term .ev:nth-child(4){animation-delay:1.15s}
+  .term .ev:nth-child(5){animation-delay:1.6s}
+  .term .ev:nth-child(6){animation-delay:2.05s}
+  @keyframes drop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.term .ev{animation:none;opacity:1} html{scroll-behavior:auto}}
+  .term .k{color:var(--sky)} .term .amber{color:var(--amber)}
+  .term .w{color:var(--warnc)} .term .d{color:var(--good)} .term .note{color:var(--term-dim);font-size:11px}
+
+  section{padding:44px 0 6px}
+  h2{font-size:24px;font-weight:800;margin-bottom:16px;letter-spacing:-.01em}
+  h2 .mono{font-family:var(--mono)}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:22px 0}
+  .card{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:var(--paper);box-shadow:var(--sh)}
+  .card h3{font-size:14.5px;font-weight:800;margin-bottom:6px}
+  .card p{font-size:13px;color:var(--ink2);margin:0}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;line-height:1.7;margin:18px 0}
+  th{text-align:left;font-size:11.5px;letter-spacing:.06em;color:var(--muted);font-weight:700;
+    padding:0 14px 9px 2px;border-bottom:2px solid var(--line2)}
+  td{padding:9px 14px 9px 2px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .mono{font-family:var(--mono);font-size:.92em}
+  .tag{display:inline-block;font-family:var(--mono);font-size:.85em;font-weight:700;
+    color:var(--amber-deep);background:var(--amber-weak);border:1px solid var(--amber);
+    border-radius:5px;padding:0 7px}
+
+  /* language tabs */
+  .tabs{margin:20px 0}
+  .tabbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:-1px;position:relative;z-index:1}
+  .tabbar button{font:700 13px var(--sans);padding:8px 18px;border:1px solid var(--line2);
+    border-bottom:none;border-radius:10px 10px 0 0;background:var(--paper2);color:var(--muted);cursor:pointer}
+  .tabbar button.on{background:var(--paper);color:var(--ink);border-color:var(--line2)}
+  .tabs pre{display:none;font-family:var(--mono);font-size:13px;line-height:1.9;color:var(--ink2);
+    background:var(--paper);border:1px solid var(--line2);border-radius:0 12px 12px 12px;
+    padding:18px 20px;overflow-x:auto;white-space:pre}
+  .tabs pre.on{display:block}
+  .tabs pre b{color:var(--ink);font-weight:700}
+  .tabs pre .c{color:var(--muted)}
+
+  ol.rules{margin:14px 0 14px 22px;line-height:2}
+  ol.rules li b{font-weight:700}
+
+  footer{margin-top:64px;border-top:1px solid var(--line);padding:30px 0 60px;
+    font-size:13px;color:var(--muted);line-height:2}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="top">
+  <span class="brand">shinchoku<i>.</i></span>
+  <span class="links">
+    <a href="https://github.com/uiuifree/shinchoku">GitHub</a>
+    <a href="https://github.com/uiuifree/shinchoku/blob/main/spec/SPEC.md">Spec</a>
+    <a href="./ja/">日本語</a>
+  </span>
+</nav>
+
+<header class="hero">
+  <h1>shinchoku<span class="dot">.</span></h1>
+  <div class="kana">進捗（しんちょく） — Japanese for "progress"</div>
+  <p class="lede">A <b>tiny NDJSON protocol</b> for batch CLIs to report their progress —
+  so any observer can draw the bar, send the failure notification and keep the
+  history, <b>without knowing anything about the work</b>.</p>
+  <div class="cta">
+    <a class="primary" href="https://github.com/uiuifree/shinchoku/blob/main/spec/SPEC.md">Read the spec</a>
+    <a href="https://github.com/uiuifree/shinchoku">Source on GitHub</a>
+  </div>
+
+  <div class="term" aria-label="Example protocol stream">
+    <span class="ev"><span class="ps">$ your-cli --out result.jsonl</span></span>
+    <span class="ev">{<span class="k">"v"</span>:1,<span class="k">"event"</span>:<span class="amber">"start"</span>,<span class="k">"title"</span>:"import",<span class="k">"total"</span>:120}      <span class="note">← a panel is born</span></span>
+    <span class="ev">{<span class="k">"v"</span>:1,<span class="k">"event"</span>:<span class="amber">"progress"</span>,<span class="k">"current"</span>:3,<span class="k">"total"</span>:120}      <span class="note">← the bar moves</span></span>
+    <span class="ev">{<span class="k">"v"</span>:1,<span class="k">"event"</span>:<span class="w">"log"</span>,<span class="k">"level"</span>:"warn",<span class="k">"msg"</span>:"row 42 skipped"} <span class="note">← the log turns yellow</span></span>
+    <span class="ev">{<span class="k">"v"</span>:1,<span class="k">"event"</span>:<span class="amber">"artifact"</span>,<span class="k">"path"</span>:"result.jsonl"}           <span class="note">← a save button appears</span></span>
+    <span class="ev">{<span class="k">"v"</span>:1,<span class="k">"event"</span>:<span class="d">"done"</span>,<span class="k">"summary"</span>:"4,520 items"}            <span class="note">← notify &amp; record</span></span>
+  </div>
+</header>
+
+<section>
+  <h2>Why a protocol?</h2>
+  <p>Think of the tracking barcode on a parcel. Every parcel carries different
+  contents — books, food, clothes — but one tracking screen works for all of
+  them, because the <em>status format</em> is shared, not the contents.
+  shinchoku is that barcode for batch work: crawls, exports, transcodes,
+  backups, AI inference. The observer understands the <b>envelope</b>
+  (seven event types); the <b>contents</b> (your domain) stay yours.</p>
+  <div class="cards">
+    <div class="card"><h3>Pipe-native</h3><p>stdout is the transport. Pipes, SSH, a WebSocket relay — anything that carries lines carries the protocol unchanged.</p></div>
+    <div class="card"><h3>printf-compliant</h3><p><span class="mono">printf '{"v":1,"event":"done"}\n'</span> is a valid producer. The libraries are convenience, not the contract.</p></div>
+    <div class="card"><h3>Tolerant by contract</h3><p>Non-JSON lines are plain logs. Unknown events and fields are ignored. Legacy tools are already valid producers.</p></div>
+    <div class="card"><h3>Seven events, that's all</h3><p>Domain words travel as values, never as vocabulary. That's why one consumer works for every tool.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>The vocabulary</h2>
+  <table>
+    <thead><tr><th>event</th><th>fields</th><th>meaning</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">start</span></td><td class="mono">title?, total?</td><td>announces the run; should be first</td></tr>
+      <tr><td><span class="tag">progress</span></td><td class="mono">current, total?, msg?</td><td>units completed so far</td></tr>
+      <tr><td><span class="tag">log</span></td><td class="mono">level, msg</td><td>info / warn / error (non-fatal)</td></tr>
+      <tr><td><span class="tag">metric</span></td><td class="mono">key, value</td><td>named counter shown verbatim</td></tr>
+      <tr><td><span class="tag">artifact</span></td><td class="mono">path, label?</td><td>an output file exists — offer it</td></tr>
+      <tr><td><span class="tag">done</span></td><td class="mono">summary?</td><td>finished successfully; last event</td></tr>
+      <tr><td><span class="tag">failed</span></td><td class="mono">msg</td><td>fatal failure; last event</td></tr>
+    </tbody>
+  </table>
+  <p>Reserved for the future: <code>ask</code>, <code>row</code>,
+  <code>heartbeat</code>. Additions never bump <code>"v"</code> — the
+  consumer rules below make them compatible by construction.</p>
+</section>
+
+<section>
+  <h2>One protocol, five helpers</h2>
+  <p>Emitters for Rust, Go, Node, PHP and Python live in this repository —
+  each one a zero-dependency*, ~100-line convenience wrapper. (*Rust uses serde.)</p>
+
+  <div class="tabs" id="tabs">
+    <div class="tabbar">
+      <button class="on" data-t="rust">Rust</button>
+      <button data-t="go">Go</button>
+      <button data-t="node">Node</button>
+      <button data-t="php">PHP</button>
+      <button data-t="python">Python</button>
+    </div>
+    <pre class="on" data-p="rust"><span class="c"># Cargo.toml
+[dependencies]
+shinchoku = "0.1"</span>
+
+use shinchoku::Event;
+
+Event::<b>start</b>().title("import").total(120).emit();
+Event::<b>progress</b>(3).total(120).emit();
+Event::<b>done</b>().summary("4,520 items").emit();
+
+<span class="c">// consumers: features = ["parse"] → tolerant parse_line()</span></pre>
+    <pre data-p="go"><span class="c">// go get github.com/uiuifree/shinchoku/go</span>
+
+import shinchoku "github.com/uiuifree/shinchoku/go"
+
+shinchoku.<b>Start</b>("import", 120)
+shinchoku.<b>Progress</b>(3, 120)
+shinchoku.<b>Done</b>("4,520 items")</pre>
+    <pre data-p="node"><span class="c">// npm install shinchoku  (ESM)</span>
+
+import * as shinchoku from "shinchoku";
+
+shinchoku.<b>start</b>({ title: "import", total: 120 });
+shinchoku.<b>progress</b>(3, 120);
+shinchoku.<b>done</b>("4,520 items");</pre>
+    <pre data-p="php"><span class="c">// composer require shinchoku/shinchoku</span>
+
+use Shinchoku\Shinchoku;
+
+Shinchoku::<b>start</b>('import', 120);
+Shinchoku::<b>progress</b>(3, 120);
+Shinchoku::<b>done</b>('4,520 items');</pre>
+    <pre data-p="python"><span class="c"># pip install shinchoku</span>
+
+import shinchoku
+
+shinchoku.<b>start</b>(title="import", total=120)
+shinchoku.<b>progress</b>(3, total=120)
+shinchoku.<b>done</b>("4,520 items")</pre>
+  </div>
+</section>
+
+<section>
+  <h2>Consumer rules — tolerance is the contract</h2>
+  <ol class="rules">
+    <li>A line that isn't valid JSON → <b>show it as a plain log.</b> Never an error.</li>
+    <li>Unknown <code>event</code> → ignore or show as a log. Never an error.</li>
+    <li>Unknown fields → ignore.</li>
+    <li>stderr → plain logs.</li>
+    <li><b>The exit code decides.</b> Non-zero exit with no <code>failed</code> seen → synthesize a failure. The protocol narrates the run; the exit code judges it.</li>
+  </ol>
+  <p>These five rules are why adding events is a compatible change, and why a
+  consumer that only implements rule 5 is already a valid, minimal consumer.
+  Everything else — bars, metrics, artifact buttons — is progressive
+  enhancement.</p>
+</section>
+
+<footer>
+  <p><b>shinchoku</b> — spec v1 (draft) · MIT license ·
+  <a href="https://github.com/uiuifree/shinchoku">github.com/uiuifree/shinchoku</a> ·
+  <a href="./ja/">日本語ガイド</a></p>
+</footer>
+
+</div>
+<script>
+  const tabs = document.getElementById("tabs");
+  tabs.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-t]");
+    if (!btn) return;
+    for (const b of tabs.querySelectorAll("[data-t]")) b.classList.toggle("on", b === btn);
+    for (const p of tabs.querySelectorAll("[data-p]")) p.classList.toggle("on", p.dataset.p === btn.dataset.t);
+  });
+</script>
+</body>
+</html>

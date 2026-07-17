@@ -1,0 +1,154 @@
+# shinchoku
+
+[![ci](https://github.com/uiuifree/shinchoku/actions/workflows/ci.yml/badge.svg)](https://github.com/uiuifree/shinchoku/actions/workflows/ci.yml)
+[![crates.io](https://img.shields.io/crates/v/shinchoku.svg)](https://crates.io/crates/shinchoku)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+**shinchoku** (進捗, *"progress"*) — a tiny NDJSON protocol for batch CLIs to
+report their progress.
+
+日本語のガイドは [docs/ja/](https://uiuifree.github.io/shinchoku/ja/)（またはリポジトリ内 `docs/ja/index.html`）へ。
+
+```
+$ your-cli --out result.jsonl
+{"v":1,"event":"start","title":"import","total":120}
+{"v":1,"event":"progress","current":3,"total":120}
+{"v":1,"event":"log","level":"warn","msg":"row 42 skipped"}
+{"v":1,"event":"artifact","path":"result.jsonl"}
+{"v":1,"event":"done","summary":"4,520 items"}
+```
+
+A CLI that writes these lines to stdout can be driven by any observer — a GUI
+shell, a scheduler, a log collector — that draws progress bars, sends failure
+notifications and keeps run history **without knowing anything about the
+domain** of the work. Think of it as the tracking barcode on a parcel: every
+parcel carries different contents, but one tracking screen works for all of
+them, because the *status format* is shared — not the contents.
+
+- **Pipe-native.** stdout is the transport. Anything that carries lines —
+  a pipe, SSH, a WebSocket relay — carries the protocol unchanged.
+- **printf-compliant.** `printf '{"v":1,"event":"done"}\n'` is a valid
+  producer. The libraries here are convenience, not the contract.
+- **Tolerant by contract.** Non-JSON lines are plain logs. Unknown events and
+  fields are ignored. A legacy tool that logs plain text is already a valid
+  producer — it just doesn't get a progress bar yet.
+- **Seven events.** `start` `progress` `log` `metric` `artifact` `done`
+  `failed`. That's the whole vocabulary. Domain words (URLs, filenames,
+  metric names) travel as *values*, never as vocabulary.
+
+The full contract lives in **[spec/SPEC.md](spec/SPEC.md)** (status: v1 draft)
+with a JSON Schema in [spec/schema/](spec/schema/). The spec is the single
+source of truth; implementations follow it.
+
+## Quickstart
+
+### Rust
+
+```toml
+[dependencies]
+shinchoku = "0.1"
+```
+
+```rust
+use shinchoku::Event;
+
+Event::start().title("import").total(120).emit();
+Event::progress(3).total(120).emit();
+Event::done().summary("4,520 items").emit();
+```
+
+Consumers enable the `parse` feature and get a tolerant line parser:
+
+```rust
+use shinchoku::{parse_line, Line};
+
+match parse_line(&line) {
+    Line::Event(event) => update_ui(event),
+    Line::Text(text) => show_as_log(text), // non-JSON / unknown events
+}
+```
+
+### Go
+
+```go
+import shinchoku "github.com/uiuifree/shinchoku/go"
+
+shinchoku.Start("import", 120)
+shinchoku.Progress(3, 120)
+shinchoku.Done("4,520 items")
+```
+
+### Node
+
+```js
+import * as shinchoku from "shinchoku";
+
+shinchoku.start({ title: "import", total: 120 });
+shinchoku.progress(3, 120);
+shinchoku.done("4,520 items");
+```
+
+### PHP
+
+```php
+use Shinchoku\Shinchoku;
+
+Shinchoku::start('import', 120);
+Shinchoku::progress(3, 120);
+Shinchoku::done('4,520 items');
+```
+
+### Python
+
+```python
+import shinchoku
+
+shinchoku.start(title="import", total=120)
+shinchoku.progress(3, total=120)
+shinchoku.done("4,520 items")
+```
+
+## Consumer rules (the short version)
+
+1. A line that isn't valid JSON → show it as a plain log. Never an error.
+2. Unknown `event` → ignore or show as a log. Never an error.
+3. Unknown fields → ignore.
+4. stderr → plain logs.
+5. **The exit code decides.** Non-zero exit with no `failed` seen → synthesize
+   a failure. The protocol narrates the run; the exit code judges it.
+
+These rules are what make additions compatible: new events and fields never
+break an old consumer. See [SPEC §6–7](spec/SPEC.md#6-consumer-requirements).
+
+## Versioning and stability
+
+Two version numbers exist, on purpose:
+
+- **The protocol** — every line carries `"v":1`. `v` bumps only on a breaking
+  change, which this spec intends never to make; additions don't bump it.
+  The spec is currently a **draft**: it may still change based on real-world
+  use before being frozen.
+- **The libraries** — each helper follows its own semver, and **all of them
+  are 0.x: breaking API changes may happen in any 0.y release until 1.0.**
+  Pin a minor version if you need stability today. Each release documents
+  which protocol version it speaks.
+
+## Repository layout
+
+```
+spec/    the contract (SPEC.md + JSON Schema) — the single source of truth
+rust/    crate  `shinchoku`         (features: emit [default], parse)
+go/      module `github.com/uiuifree/shinchoku/go`
+node/    npm    `shinchoku`         (ESM, zero-dependency)
+php/     composer `shinchoku/shinchoku` (PSR-4, zero-dependency)
+python/  PyPI   `shinchoku`         (zero-dependency)
+docs/    documentation site (GitHub Pages)
+```
+
+Reserved for future protocol extensions (not implemented): `ask`
+(bidirectional prompts), `row` (streamed tabular data), `heartbeat`
+(long-running services). See [SPEC §7](spec/SPEC.md#7-versioning-and-extension).
+
+## License
+
+[MIT](LICENSE)
