@@ -20,6 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@1.70
+      # serde_json は 1.0.150 で MSRV が 1.71 に上がったため、1.70 対応の最終版に固定する
+      - run: cargo update --manifest-path rust/Cargo.toml -p serde_json --precise 1.0.149
       - run: cargo check --manifest-path rust/Cargo.toml --all-features
 
   go:
