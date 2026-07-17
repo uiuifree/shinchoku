@@ -1,0 +1,23 @@
+# shinchoku
+
+> shinchoku (進捗, "progress") is a tiny NDJSON protocol for batch CLIs to
+> report progress on stdout: seven events (start, progress, log, metric,
+> artifact, done, failed), one JSON object per line, tolerant consumers,
+> exit code authoritative. A compliant producer can be a single printf —
+> no library or dependency is required.
+
+The whole specification fits in one context window. Read it before emitting
+or parsing events; domain words travel as values, never as event types or
+field names.
+
+## Docs
+
+- [Specification (markdown)](https://raw.githubusercontent.com/uiuifree/shinchoku/master/spec/SPEC.md): the full contract — envelope, events, producer and consumer rules
+- [JSON Schema](https://raw.githubusercontent.com/uiuifree/shinchoku/master/spec/schema/shinchoku.schema.json): validates a single event line
+- [README (markdown)](https://raw.githubusercontent.com/uiuifree/shinchoku/master/README.md): quickstarts for Rust, Go, Node, PHP and Python, consumer rules, positioning
+
+## Optional
+
+- [English guide](https://shinchoku.app/): human-oriented documentation site
+- [日本語ガイド](https://shinchoku.app/ja/): Japanese documentation site
+- [Repository](https://github.com/uiuifree/shinchoku): spec, schema and the five reference helpers

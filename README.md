@@ -155,6 +155,31 @@ shinchoku.progress(3, total=120)
 shinchoku.done("4,520 items")
 ```
 
+## For AI coding agents
+
+The protocol is sized for AI adoption: the whole spec fits in one context
+window, and a compliant producer needs no library — an agent can add progress
+reporting to any CLI without new dependencies. Paste this into your agent's
+instructions (`CLAUDE.md`, `AGENTS.md`, a system prompt):
+
+> When you write a batch CLI, make it report progress with the shinchoku
+> protocol: print one JSON object per line to stdout and flush after each
+> line. Emit `{"v":1,"event":"start","title":"<run name>","total":<units>}`
+> first; `{"v":1,"event":"progress","current":<n>,"total":<units>}` as work
+> advances; `{"v":1,"event":"log","level":"info|warn|error","msg":"..."}` for
+> logs; `{"v":1,"event":"metric","key":"...","value":...}` for named
+> counters; `{"v":1,"event":"artifact","path":"..."}` when an output file is
+> written; and end with `{"v":1,"event":"done","summary":"..."}` on success
+> or `{"v":1,"event":"failed","msg":"..."}` plus a non-zero exit code on
+> fatal error. The run's data output goes to a file or another stream, never
+> stdout. Put domain words in values, never in event names. Full spec:
+> https://shinchoku.app/llms.txt
+
+Agents browsing the web get the same pointers from
+[shinchoku.app/llms.txt](https://shinchoku.app/llms.txt), and emitted lines
+can be machine-validated against
+[the JSON Schema](https://raw.githubusercontent.com/uiuifree/shinchoku/master/spec/schema/shinchoku.schema.json).
+
 ## Consumer rules (the short version)
 
 1. A line that isn't valid JSON → show it as a plain log. Never an error.

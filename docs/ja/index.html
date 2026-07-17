@@ -103,6 +103,10 @@
 
   ol.rules{margin:14px 0 14px 22px;line-height:2.1}
 
+  pre.snippet{font-family:var(--mono);font-size:12.5px;line-height:1.8;color:var(--ink2);
+    background:var(--paper2);border:1px solid var(--line2);border-radius:12px;
+    padding:16px 18px;overflow-x:auto;white-space:pre-wrap}
+
   footer{margin-top:64px;border-top:1px solid var(--line);padding:30px 0 60px;
     font-size:13px;color:var(--muted);line-height:2}
 </style>
@@ -275,9 +279,20 @@ shinchoku.<b>done</b>("4,520件")</pre>
   すべてその上の漸進的強化にすぎません。</p>
 </section>
 
+<section>
+  <h2>AIエージェントと使う</h2>
+  <p>仕様は丸ごとコンテキストウィンドウに収まるサイズで、プロデューサーにライブラリは不要——
+  つまりAIエージェントは、依存を1つも増やさずにどんなCLIにも進捗報告を組み込めます。
+  エージェントには <a href="../llms.txt">llms.txt</a> を読ませるか、指示ファイル
+  （<span class="mono">CLAUDE.md</span>・<span class="mono">AGENTS.md</span>・システムプロンプト）に
+  以下を貼り付けてください（可搬性のため英語原文のまま）:</p>
+  <pre class="snippet">When you write a batch CLI, make it report progress with the shinchoku protocol: print one JSON object per line to stdout and flush after each line. Emit {"v":1,"event":"start","title":"&lt;run name&gt;","total":&lt;units&gt;} first; {"v":1,"event":"progress","current":&lt;n&gt;,"total":&lt;units&gt;} as work advances; {"v":1,"event":"log","level":"info|warn|error","msg":"..."} for logs; {"v":1,"event":"metric","key":"...","value":...} for named counters; {"v":1,"event":"artifact","path":"..."} when an output file is written; and end with {"v":1,"event":"done","summary":"..."} on success or {"v":1,"event":"failed","msg":"..."} plus a non-zero exit code on fatal error. The run's data output goes to a file or another stream, never stdout. Put domain words in values, never in event names. Full spec: https://shinchoku.app/llms.txt</pre>
+</section>
+
 <footer>
   <p><b>shinchoku</b> — 仕様 v1（ドラフト）· MITライセンス ·
   <a href="https://github.com/uiuifree/shinchoku">github.com/uiuifree/shinchoku</a> ·
+  <a href="../llms.txt">llms.txt</a> ·
   <a href="../">English</a></p>
 </footer>
 
